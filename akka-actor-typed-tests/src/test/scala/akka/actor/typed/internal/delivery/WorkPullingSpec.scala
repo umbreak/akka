@@ -13,7 +13,7 @@ import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.receptionist.ServiceKey
 import org.scalatest.WordSpecLike
 
-class WorkPullingSpec extends ScalaTestWithActorTestKit with WordSpecLike with LogCapturing {
+class WorkPullingSpec extends ScalaTestWithActorTestKit("akka.loglevel=DEBUG") with WordSpecLike with LogCapturing {
   import TestConsumer.defaultConsumerDelay
   import TestProducer.defaultProducerDelay
 

@@ -438,6 +438,7 @@ class WorkPullingProducerController[A: ClassTag](
             }
 
           case None =>
+            context.log.info("Ignored WorkerRequestNext from [{}]", w.next.producerId)
             // obsolete Next, ConsumerController already deregistered
             Behaviors.unhandled
         }

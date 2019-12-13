@@ -123,6 +123,7 @@ object ProducerController {
     Behaviors
       .setup[InternalCommand] { context =>
         context.setLoggerName(classOf[ProducerController[_]])
+        context.log.info(s"ProducerController created ${context.self}, producerId $producerId") //FIXME
         val durableQueue = askLoadState(context, durableQueueBehavior)
         waitingForStart[A](context, None, None, durableQueue, createInitialState(durableQueue.nonEmpty)) {
           (producer, consumerController, loadedState) =>
@@ -224,11 +225,13 @@ object ProducerController {
           DurableProducerQueue.State[A]) => Behavior[InternalCommand]): Behavior[InternalCommand] = {
     Behaviors.receiveMessagePartial[InternalCommand] {
       case RegisterConsumer(c: ActorRef[ConsumerController.Command[A]] @unchecked) =>
+        context.log.info(s"ProducerController RegisterConsumer ${context.self}, c $c") //FIXME
         (producer, initialState) match {
           case (Some(p), Some(s)) => thenBecomeActive(p, c, s)
           case (_, _)             => waitingForStart(context, producer, Some(c), durableQueue, initialState)(thenBecomeActive)
         }
       case start: Start[A] @unchecked =>
+        context.log.info(s"ProducerController Start ${context.self}, start $start") //FIXME
         (consumerController, initialState) match {
           case (Some(c), Some(s)) => thenBecomeActive(start.producer, c, s)
           case (_, _) =>
@@ -266,6 +269,7 @@ object ProducerController {
             ctx.self ! ResendFirst
             false
           }
+        ctx.log.info(s"ProducerController becomeActive, requested [$requested]")
         new ProducerController[A](ctx, producerId, durableQueue, msgAdapter, timers)
           .active(state.copy(requested = requested))
       }
